@@ -29,6 +29,12 @@ public class Users {
         this.email = email;
     }
 
+    public Users(String name) {
+        this.id = UUID.randomUUID().toString();
+        this.name = name;
+        this.email = "";
+    }
+
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
     public String getName() { return name; }

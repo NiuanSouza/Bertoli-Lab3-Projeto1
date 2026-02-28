@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>User CRUD</title>
+        <meta charset="UTF-8">
+        <script>
+        const api = "http://localhost:8080/Users";
+
+        window.onload = () => { loadUsers(); };
+
+        function loadUsers(messagem = "Data loaded!") {
+            const xhttpr = new XMLHttpRequest();
+            xhttpr.open('GET', api, true);
+            xhttpr.onload = () => {
+                if (xhttpr.status === 200) {
+                    const users = JSON.parse(xhttpr.response);
+                    let table = document.querySelector('#table');
+                    
+                    table.innerHTML = `
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Actions</th>
+                        </tr>`;
+
+                    users.forEach(user => {
+                        let row = table.insertRow();
+                        row.insertCell(0).innerHTML = user.id;
+                        row.insertCell(1).innerHTML = user.name;
+                        row.insertCell(2).innerHTML = user.email;
+                        
+                        let cellEdit = row.insertCell(3);
+                        cellEdit.innerHTML = `<button onclick="prepareEdit('${user.id}', '${user.name}', '${user.email}')">Editar</button>`;
+                        
+                        let cellDelete = row.insertCell(3);
+                        cellDelete.innerHTML = `<button onclick="Delete('${user.id}')">Deletar</button>`;
+                    });
+                    document.getElementById("demo").innerHTML = messagem;
+                }
+            };
+            xhttpr.send();
+        }
+
+        function buttonAction() {
+            let action = document.getElementById("btn_action").value;
+            if (action === "edit") {
+                updateUser();
+            } else {
+                insertUser();
+            }
+        }
+
+        function insertUser() {
+            const name = document.getElementById("text_name").value;
+            const email = document.getElementById("text_email").value;
+
+            if (name && email) {
+                const userData = JSON.stringify({ "name": name, "email": email });
+                sendRequest('POST', api, userData, "User added!");
+            }
+        }
+
+        function Delete(id)
+        {
+            sendRequest('DELETE', `${api}/${id}`, "", "User deleted!");
+
+        }
+
+        function prepareEdit(id, name, email) {
+            document.getElementById("text_id").value = id;
+            document.getElementById("text_name").value = name;
+            document.getElementById("text_email").value = email;
+
+            document.getElementById("btn_action").value = "edit";
+            document.getElementById("btn_action").innerHTML = "Update User";
+            document.getElementById("btn_cancel").style.display = "inline";
+            document.getElementById("demo").innerHTML = "Editing ID: " + id;
+        }
+
+        function updateUser() {
+            const id = document.getElementById("text_id").value;
+            const name = document.getElementById("text_name").value;
+            const email = document.getElementById("text_email").value;
+
+            const userData = JSON.stringify({ "name": name, "email": email });
+            sendRequest('PUT', `${api}/${id}`, userData, "User updated!");
+            cancel();
+        }
+
+        function sendRequest(method, url, data, successMsg) {
+            const xhttpr = new XMLHttpRequest();
+            xhttpr.open(method, url, true);
+            xhttpr.setRequestHeader("Content-Type", "application/json");
+            xhttpr.onload = () => {
+                if (xhttpr.status >= 200 && xhttpr.status < 300) {
+                    loadUsers(successMsg);
+                    clearFields();
+                }
+            };
+            xhttpr.send(data);
+        }
+
+        function cancel() {
+            document.getElementById("btn_action").value = "add";
+            document.getElementById("btn_action").innerHTML = "Add User";
+            document.getElementById("btn_cancel").style.display = "none";
+            clearFields();
+        }
+
+        function clearFields() {
+            document.getElementById("text_id").value = "";
+            document.getElementById("text_name").value = "";
+            document.getElementById("text_email").value = "";
+        }
+    </script>
+    </head>
+    <body>
+        <h2>User Management</h2>
+
+        <input type="hidden" id="text_id">
+
+        <input type="text" id="text_name" placeholder="Name">
+        <input type="text" id="text_email" placeholder="Email">
+
+        <button id="btn_action" value="add" onclick="buttonAction()">Add
+            User</button>
+        <button id="btn_cancel" onclick="cancel()"
+            style="display:none;">Cancel</button>
+        <button onclick="loadUsers()">Refresh List</button>
+
+        <br><br>
+
+        <table id="table" border="1"
+            style="width: 80%; text-align: left; border-collapse: collapse;">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </table>
+
+        <p id="demo"></p>
+    </body>
+</html>
