@@ -21,7 +21,9 @@
                             <th>ID</th>
                             <th>Name</th>
                             <th>Email</th>
-                            <th>Actions</th>
+                            <th>Edit</th>                            
+                            <th>Delete</th>
+
                         </tr>`;
 
                     users.forEach(user => {
@@ -33,7 +35,7 @@
                         let cellEdit = row.insertCell(3);
                         cellEdit.innerHTML = `<button onclick="prepareEdit('${user.id}', '${user.name}', '${user.email}')">Editar</button>`;
                         
-                        let cellDelete = row.insertCell(3);
+                        let cellDelete = row.insertCell(4);
                         cellDelete.innerHTML = `<button onclick="Delete('${user.id}')">Deletar</button>`;
                     });
                     document.getElementById("demo").innerHTML = messagem;
